@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>Hello World!</title>
+  </head>
+  <body>
+<!--    <h1>Hello World!</h1>-->
+    <p>
+    	<button id="booper">Connect</button>
+        <button id="initVideo">Init Video</button>
+        <button id="snapVideo">Snapshot</button>
+    </p>
+    <!-- All of the Node.js APIs are available in this renderer process. 
+    We are using Node.js <script>document.write(process.versions.node)</script>,
+    Chromium <script>document.write(process.versions.chrome)</script>,
+    Electron <script>document.write(process.versions.electron)</script>,
+    and Serialport <script>document.write(require('serialport/package').version)</script>.
+
+    <div id="error"></div>
+    <div id="ports"></div>
+    -->
+      <video id="jscii-element-webrtc" controls autoplay>
+				Your browser does not support video
+			</video> 
+      
+  </body>
+  <script>
+    // You can also require other files to run in this process
+    require('./renderer.js')
+  </script>
+</html>
