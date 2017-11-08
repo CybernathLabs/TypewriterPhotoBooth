@@ -1,7 +1,7 @@
 {
-  "name": "electron-serialport",
+  "name": "TypewriterPhotoBooth",
   "version": "1.0.1",
-  "description": "A minimal Electron application with node serialport",
+  "description": "Takes a webcam image and outputs it as ASCII art via serial port.",
   "main": "main.js",
   "scripts": {
     "start": "electron .",
@@ -9,7 +9,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git@github.com:johnny-five-io/electron-serialport.git"
+    "url": "git@github.com:CybernathLabs/TypewriterPhotoBooth.git"
   },
   "keywords": [
     "Electron",
