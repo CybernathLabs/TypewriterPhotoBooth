@@ -34,6 +34,7 @@
 	 * color     - enable color ascii (highly experimental)
 	 * interval  - integer - for videos only, this is the interval between each render
 	 * webrtc    - bool, default false, only applicable if 'el' is a video
+     * cameraId - User Media Device ID for the camera.
 	 */
 	function Jscii(params) {
 		var self = this;
@@ -43,7 +44,7 @@
 		this.fn = typeof params.fn === 'function' ? params.fn : null;
 		this.width = typeof params.width === 'number' ? params.width : 150;
 		this.color = !!params.color;
-
+        this.cameraId = (params.cameraId)? params.cameraId : null;
 		this.canvas = document.createElement('canvas');
 		this.ctx = this.canvas.getContext('2d');
 
@@ -58,10 +59,15 @@
 				if(typeof navigator.getUserMedia !== 'function') {
 					return logError((el.innerHTML = 'Error: browser does not support WebRTC'));
 				}
-				navigator.getUserMedia({video: true, audio: false}, function(localMediaStream){
-					self.mediaStream = localMediaStream;
-					el.src = (window.URL || window.webkitURL).createObjectURL(localMediaStream);
-				}, logError);
+                var constraints = {video: true, audio: false}
+                if(params.cameraId){
+                    constraints.video = {deviceId:{exact : params.cameraId}}
+                }
+                console.log(constraints)
+                navigator.mediaDevices.getUserMedia(constraints).then( (s)=>{
+					self.mediaStream = s;
+					el.srcObject = s;
+				}).catch(logError);
 			}
 			el.addEventListener('loadeddata', function() { self.play(); });
 		}
@@ -108,6 +114,7 @@
 		if(!dim.width || !dim.height) {
 			ratio = nodeName === 'IMG' ? el.height/el.width : el.videoHeight/el.videoWidth;
             // SEAN BROKE THIS by adding *.5
+            // UPDATE: Actually made the printouts look great!!
 			this.dimension(this.width, parseInt(this.width*ratio*.5, 10));
 			dim = this.dimension();
 		}

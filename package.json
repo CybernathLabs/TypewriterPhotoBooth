@@ -26,6 +26,7 @@
   },
   "dependencies": {
     "data-table": "^2.0.0",
+    "jquery": "^3.2.1",
     "serialport": "^4.0.7",
     "vue-electron": "^1.0.6"
   }

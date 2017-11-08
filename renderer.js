@@ -16,29 +16,25 @@ let stringBuffer = new stringBuf();
 var webcamJscii;
 
 serialport.list((err, ports) => {
+  cDiv = document.getElementById("cxnDisp")
   console.log('ports', ports);
-//  if (err) {
-//    document.getElementById('error').textContent = err.message
-//    return
-//  } else {
-//    document.getElementById('error').textContent = ''
-//  }
-//
-//  if (ports.length === 0) {
-//    document.getElementById('error').textContent = 'No ports discovered'
-//  }
-//
-//  const headers = Object.keys(ports[0])
-//  const table = createTable(headers)
-//  tableHTML = ''
-//  table.on('data', data => tableHTML += data)
-//  table.on('end', () => document.getElementById('ports').innerHTML = tableHTML)
-//  ports.forEach(port => table.write(port))
-//  table.end();
+    if(err){ console.log(err); }
+    for(var i = 0; i < ports.length; i++){
+        cDiv.innerHTML += '<button onclick="openSerialPort(\'' + ports[i].comName + '\')">' + ports[i].comName + "</button>";
+    }
 })
 
-document.getElementById("initVideo").addEventListener("click",initVideo);
-document.getElementById("snapVideo").addEventListener("click",getPic)
+navigator.mediaDevices.enumerateDevices().then((md)=>{
+    console.log(md)
+    for(var i = 0; i < md.length; i++){
+        if(md[i].kind == 'videoinput'){
+            console.info(md[i].label,md[i].deviceId)
+            btn = $("<button>"+md[i].label+"</button>").click(md[i].deviceId,initVideo);
+            $("#vidDisp").append(btn)
+        }
+    }
+})
+
 
 window.addEventListener('keydown', function(evt) {
         if (evt.keyCode == 32) {
@@ -46,22 +42,24 @@ window.addEventListener('keydown', function(evt) {
             getPic();
         }
     });
-document.getElementById("booper").addEventListener("click",function(e){
+/*document.getElementById("booper").addEventListener("click",function(e){
     //e.currentTarget.styles.display = 'none;'
 	if(!port || !port.isOpen){
 		console.log("Opening Port");
 		//openSerialPort("/dev/cu.usbmodem1421");
-        openSerialPort("/dev/cu.usbserial-00002114");
+        openSerialPort("/dev/cu.usbmodem1411");
+        //openSerialPort("/dev/cu.usbserial-00002114");
         
 	}else{
 	//	doBoop();
 	   console.info("BOOPED");
 	   }
    })
-
+*/
 function openSerialPort(portname){
+    console.log("Opening: ",portname)
     // Inits speed of 115200 and     
-    // Queues data until a new line is received.
+    // Queues incoming data until a new line is received.
     var opts = {  
         parser: serialport.parsers.readline("\n"),
         baudRate:115200
@@ -69,8 +67,21 @@ function openSerialPort(portname){
     port = new serialport(portname,opts);
     
     // Register Serial Events
-    port.on('error', (e)=> console.error(e));
+    port.on('open',()=>{onPortOpen(portname)})
+    port.on('error', onPortError);
     port.on('data',onData);
+}
+
+function onPortError(err){
+    console.error(err);
+    $("button","#cxnDisp").removeAttr("disabled");
+}
+
+function onPortOpen(n){
+    console.log("Port Opened",n)
+    $("button","#cxnDisp").attr("disabled","disabled");
+    $("#cxnStatus").text("Connected to " + n)
+    
 }
 
 // Vomits a bunch of text into the buffer and kicks off sending.
@@ -95,13 +106,24 @@ function onData(chunk){
     }
 }
 
-function initVideo(){
-    navigator.mediaDevices.enumerateDevices().then((md)=>{console.log(md)})
+function initVideo(e){
+    console.log("Init Video",e.data)
+   // navigator.mediaDevices.enumerateDevices().then((md)=>{console.log(md)})
+    
     webcamJscii = new Jscii({
+        cameraId: e.data,
         el: document.getElementById('jscii-element-webrtc'),
         width:110, // landscape...  80=portrait
         webrtc: true
     });
+    jQuery("#config").hide();
+    videoContainer = document.getElementById("jscii-element-webrtc")
+    $(videoContainer).show();
+    if (videoContainer.requestFullscreen) videoContainer.requestFullscreen();
+      else if (videoContainer.mozRequestFullScreen) videoContainer.mozRequestFullScreen();
+      else if (videoContainer.webkitRequestFullScreen) videoContainer.webkitRequestFullScreen();
+      else if (videoContainer.msRequestFullscreen) videoContainer.msRequestFullscreen();
+    
 }
 
 function getPic(){
@@ -118,3 +140,6 @@ function getPic(){
         sendChar();
     }
 }
+
+// Enables callback from DOM.  TODO: Figure out what the "correct" way is.
+document.openSerialPort = openSerialPort;

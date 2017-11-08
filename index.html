@@ -2,27 +2,30 @@
 <html>
   <head>
     <meta charset="UTF-8">
-    <title>Hello World!</title>
+    <title>Typewriter Photo Booth</title>
+      <!-- fix for node and jquery -->
+    <script>var $ = jQuery = require('jquery');</script>
   </head>
   <body>
-<!--    <h1>Hello World!</h1>-->
-    <p>
-    	<button id="booper">Connect</button>
-        <button id="initVideo">Init Video</button>
-        <button id="snapVideo">Snapshot</button>
-    </p>
-    <!-- All of the Node.js APIs are available in this renderer process. 
-    We are using Node.js <script>document.write(process.versions.node)</script>,
-    Chromium <script>document.write(process.versions.chrome)</script>,
-    Electron <script>document.write(process.versions.electron)</script>,
-    and Serialport <script>document.write(require('serialport/package').version)</script>.
-
-    <div id="error"></div>
-    <div id="ports"></div>
-    -->
-      <video id="jscii-element-webrtc" controls autoplay>
-				Your browser does not support video
-			</video> 
+    <div id="config">
+        <h1>Typewriter Startup Options</h1>
+    	<p>Once connected to serial and video, the space-bar will take a picture and start sending it to the serial port.</p>
+        <h3>Step 1: Choose Serial Port</h3>
+        <p><i>Note:This is not validated to be the correct device, only that it's an available port.</i></p>
+        <div id="cxnDisp">
+        
+        </div>
+        <p id="cxnStatus"></p>
+        <h3>Step 2: Select Video Input</h3>
+        <div id="vidDisp">
+        </div>
+        <p id="vidStatus"></p>
+    </div>
+      <div id="vidContainer">
+      <video style="display:none;" id="jscii-element-webrtc" controls autoplay>
+          Your browser does not support video
+      </video> 
+      </div>
       
   </body>
   <script>
