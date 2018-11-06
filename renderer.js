@@ -136,7 +136,8 @@ function getPic(){
     str = str.replace(/\~/g,'-');
     console.log(str);
     if(port && port.isOpen){
-        stringBuffer.push(str + "\rMaker Faire Orlando 2017\rCybernath Labs\r\r\r\r\r\r\r");
+//        stringBuffer.push(str + "\rMaker Faire Orlando 2017\rCybernath Labs\r\r\r\r\r\r\r");
+        stringBuffer.push(str + "\rPicture by 'PhotoTYPE'\rCybernath Labs & MakerFX Makerspace\r\r\r\r\r\r\r");
         sendChar();
     }
 }

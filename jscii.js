@@ -15,6 +15,7 @@
 	 * value to character mapping from dark to light
 	 * add more characters and they will be accounted for automatically
 	 * note: the extra &nbsp; is to account for the value range inclusive of 100%
+     "$@B%8&WM#*oahkbdpqwmZO0QLCJUYXzcvunxrjft/\|()1{}[]?-_+~<>i!lI;:,"^`'. "
 	 */
 	var chars = ['@','#','$','=','*','!',';',':','~','-',',','.','&nbsp;', '&nbsp;'];
 	var charLen = chars.length-1;
