@@ -12,6 +12,12 @@ const path = require('path')
 const os = require('os');
 const homeDir = os.homedir();
 
+
+const {BrowserWindow} = require('electron').remote
+const url = require('url')
+
+
+
 // Holds reference to serial port connection, once connected.
 let port; 
 
@@ -48,6 +54,14 @@ window.addEventListener('keydown', function(evt) {
             evt.preventDefault();
             previewImg();
             getPic();
+        }
+        if(evt.keyCode == 13){
+            win = new BrowserWindow({width: 400, height: 300,fullscreen:false});
+             win.loadURL(url.format({
+    pathname: path.join(__dirname, 'test.html'),
+    protocol: 'file:',
+    slashes: true
+  }))
         }
     });
 /*document.getElementById("booper").addEventListener("click",function(e){
@@ -179,6 +193,7 @@ function previewImg(){
     fs.writeFile(path.join(savePath,imgName), imageBuffer.data, (err) => {
       if (err) throw err;
       console.log('The file has been saved!');
+        
     });
 }
 
