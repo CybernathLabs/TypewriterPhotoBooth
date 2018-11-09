@@ -7,11 +7,18 @@ const createTable = require('data-table')
 const stringBuf = require('./stringbuffer')
 require('./jscii')
 
+const fs = require('fs');
+const path = require('path')
+const os = require('os');
+const homeDir = os.homedir();
+
 // Holds reference to serial port connection, once connected.
 let port; 
 
 // Holds string and releases one char at a time.
 let stringBuffer = new stringBuf();
+
+console.log("Homedir:",homeDir)
 
 var webcamJscii;
 
@@ -39,6 +46,7 @@ navigator.mediaDevices.enumerateDevices().then((md)=>{
 window.addEventListener('keydown', function(evt) {
         if (evt.keyCode == 32) {
             evt.preventDefault();
+            previewImg();
             getPic();
         }
     });
@@ -140,6 +148,52 @@ function getPic(){
         stringBuffer.push(str + "\rPicture by 'PhotoTYPE'\rCybernath Labs & MakerFX Makerspace\r\r\r\r\r\r\r");
         sendChar();
     }
+}
+
+function previewImg(){
+    var vid = document.getElementById("jscii-element-webrtc");
+    var img = document.getElementById("previewImg");
+    var cvs = document.createElement("canvas");
+    cvs.height = 480;
+    cvs.width = 640;
+    
+    var context = cvs.getContext('2d');
+//    context.fillStyle = "#AAA";
+//    context.fillRect(0,0,640,480);
+    context.drawImage(vid,0,0,cvs.width,cvs.height);
+    var data = cvs.toDataURL('image/png');
+    img.setAttribute('src',data);
+    //console.log(data);
+    
+    // Spit Out Img
+    
+    var imageBuffer = processBase64Image(data);
+    var imgName = 'MFO18-' + Date.now() + '.png';
+    var savePath = path.join(homeDir,"MFO2018");
+    
+    console.log("File Path",savePath);
+    console.log("imageBuffer",imageBuffer)
+    
+    if(!fs.existsSync(savePath)) fs.mkdirSync(savePath)
+    
+    fs.writeFile(path.join(savePath,imgName), imageBuffer.data, (err) => {
+      if (err) throw err;
+      console.log('The file has been saved!');
+    });
+}
+
+function processBase64Image(dataString) {
+    var matches = dataString.match(/^data:([A-Za-z-+\/]+);base64,(.+)$/),
+        response = {};
+
+    if (matches.length !== 3) {
+        return new Error('Invalid input string');
+    }
+
+    response.type = matches[1];
+    response.data = new Buffer(matches[2], 'base64');
+
+    return response;
 }
 
 // Enables callback from DOM.  TODO: Figure out what the "correct" way is.
