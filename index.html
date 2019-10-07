@@ -2,6 +2,8 @@
 <html>
   <head>
     <meta charset="UTF-8">
+    <meta http-equiv="Content-Security-Policy" content="script-src 'self' 'sha256-f0vIV0JFpSdI2luVuRIg4puv3Pj6mgl1rhghWGCw2sk=';" />
+
     <title>Typewriter Photo Booth</title>
       <!-- fix for node and jquery -->
     <script>var $ = jQuery = require('jquery');</script>
@@ -9,7 +11,7 @@
   <body>
     <div id="config">
         <h1>Typewriter Startup Options</h1>
-    	<p>Once connected to serial and video, the space-bar will take a picture and start sending it to the serial port.</p>
+    	<p>Once connected to serial and video, the space-bar Will take a picture and start sending it to the serial port.</p>
         <h3>Step 1: Choose Serial Port</h3>
         <p><i>Note:This is not validated to be the correct device, only that it's an available port.</i></p>
         <div id="cxnDisp">
@@ -28,8 +30,5 @@
       </div>
       <img id="previewImg" />
   </body>
-  <script>
-    // You can also require other files to run in this process
-    require('./renderer.js')
-  </script>
+  <script src="./renderer.js"></script>
 </html>

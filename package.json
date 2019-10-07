@@ -21,13 +21,13 @@
   "author": "GitHub",
   "license": "CC0-1.0",
   "devDependencies": {
-    "electron": "^1.4.1",
-    "electron-rebuild": "^1.4.0"
+    "electron": "^5.0.5",
+    "electron-rebuild": "^1.8.5"
   },
   "dependencies": {
     "data-table": "^2.0.0",
     "jquery": "^3.2.1",
-    "serialport": "^4.0.7",
+    "serialport": "^7.1.5",
     "vue-electron": "^1.0.6"
   }
 }
