@@ -3,6 +3,7 @@
 // All of the Node.js APIs are available in this process.
 
 const serialport = require('serialport')
+const Readline = require('@serialport/parser-readline')
 const createTable = require('data-table')
 const stringBuf = require('./stringbuffer')
 require('./jscii')
@@ -16,7 +17,7 @@ const homeDir = os.homedir();
 const {BrowserWindow} = require('electron').remote
 const url = require('url')
 
-
+let lineParser = new Readline({ delimiter:"\n"})
 
 // Holds reference to serial port connection, once connected.
 let port; 
@@ -83,15 +84,16 @@ function openSerialPort(portname){
     // Inits speed of 115200 and     
     // Queues incoming data until a new line is received.
     var opts = {  
-        parser: serialport.parsers.readline("\n"),
+        parser: lineParser,
         baudRate:115200
     };
     port = new serialport(portname,opts);
+	port.pipe(lineParser);
     
     // Register Serial Events
     port.on('open',()=>{onPortOpen(portname)})
     port.on('error', onPortError);
-    port.on('data',onData);
+    lineParser.on('data',onData);
 }
 
 function onPortError(err){
@@ -116,13 +118,13 @@ function doBoop(){
 function sendChar(){
     var c = stringBuffer.pull();
     console.log("Sending:",c);
-    port.write(new Buffer(c,'utf8'));
+    port.write(Buffer.from(c));
 }
 
 //Once confirmation is received, we check for more pending data.
 function onData(chunk){
-	console.info("I has Data:",chunk,stringBuffer.getLength());
-    if(chunk.substr(0,2) == "ok" && stringBuffer.getLength() > 0){
+	console.info("I has Data:",chunk.toString(),stringBuffer.getLength());
+    if(chunk.toString().substr(0,2) == "ok" && stringBuffer.getLength() > 0){
         // Ready to send more data.
         sendChar();
     }
