@@ -17,7 +17,11 @@
 	 * note: the extra &nbsp; is to account for the value range inclusive of 100%
      "$@B%8&WM#*oahkbdpqwmZO0QLCJUYXzcvunxrjft/\|()1{}[]?-_+~<>i!lI;:,"^`'. "
 	 */
-	var chars = ['@','#','$','=','*','!',';',':','~','-',',','.','&nbsp;', '&nbsp;'];
+	// var chars = ['@','#','$','=','*','!',';',':','~','-',',','.','&nbsp;', '&nbsp;'];
+	var chars = ['$','@','B','%','8','&','W','M','#','*','o','a','h','d',
+				'p','q','w','m','Z','O','0','Q','J','U','Y','X','z','v',
+				'u','x','r','j','t','/','\\','|','(',')','1','[',']',
+				'?','-','_','+','~','<','>','i','!','l',';',':',',','"','^','`','\'','.',' ',' ' ];
 	var charLen = chars.length-1;
 	function getChar(val) { return chars[parseInt(val*charLen, 10)]; }
 
