@@ -143,10 +143,10 @@ function initVideo(e){
     jQuery("#config").hide();
     videoContainer = document.getElementById("jscii-element-webrtc")
     $(videoContainer).show();
-    if (videoContainer.requestFullscreen) videoContainer.requestFullscreen();
-      else if (videoContainer.mozRequestFullScreen) videoContainer.mozRequestFullScreen();
-      else if (videoContainer.webkitRequestFullScreen) videoContainer.webkitRequestFullScreen();
-      else if (videoContainer.msRequestFullscreen) videoContainer.msRequestFullscreen();
+    // if (videoContainer.requestFullscreen) videoContainer.requestFullscreen();
+    //   else if (videoContainer.mozRequestFullScreen) videoContainer.mozRequestFullScreen();
+    //   else if (videoContainer.webkitRequestFullScreen) videoContainer.webkitRequestFullScreen();
+    //   else if (videoContainer.msRequestFullscreen) videoContainer.msRequestFullscreen();
     
 }
 
