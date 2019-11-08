@@ -6,6 +6,8 @@ const serialport = require('serialport')
 const Readline = require('@serialport/parser-readline')
 const createTable = require('data-table')
 const stringBuf = require('./stringbuffer')
+const {ipcRenderer} = require('electron');
+
 // require('./jscii')
 
 const asciiConv = require('./asciiConversion');
@@ -60,11 +62,14 @@ window.addEventListener('keydown', function(evt) {
         }
         if(evt.keyCode == 13){
             win = new BrowserWindow({width: 400, height: 300,fullscreen:false});
-             win.loadURL(url.format({
-    pathname: path.join(__dirname, 'test.html'),
-    protocol: 'file:',
-    slashes: true
-  }))
+            win.loadURL(url.format({
+            pathname: path.join(__dirname, 'test.html'),
+            protocol: 'file:',
+            slashes: true
+        }))
+        }
+        if(evt.keyCode == 74 && evt.altKey && evt.metaKey){
+            ipcRenderer.sendSync('debug', true)
         }
     });
 
@@ -151,7 +156,7 @@ function formatPic(cvs){
     }
     //var str = webcamJscii.getAsciiString();
     asciiConversion.debugImg = document.getElementById("debugImg");
-    var str = asciiConversion.getAsciiString(cvs,100);
+    var str = asciiConversion.getAsciiString(cvs,110);
     str = str.replace(/&nbsp;/g,' ');
     str = str.replace(/\~/g,'-');
     console.log(str);
