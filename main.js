@@ -4,6 +4,8 @@ const app = electron.app
 // Module to create native browser window.
 const BrowserWindow = electron.BrowserWindow
 
+const {ipcMain} = require('electron');
+
 const path = require('path')
 const url = require('url')
 
@@ -16,7 +18,7 @@ function createWindow () {
   mainWindow = new BrowserWindow({
     width: 1200,
     height: 600,
-    fullscreen:false,
+    fullscreen:true,
     webPreferences:{
       nodeIntegration: true
     }
@@ -63,3 +65,9 @@ app.on('activate', function () {
 
 // In this file you can include the rest of your app's specific main process
 // code. You can also put them in separate files and require them here.
+
+ipcMain.on('debug', (event,arg)=>{
+  // IPC works, but 
+  // devtools doesn't work right, Moving on....
+  //mainWindow.webContents.openDevTools();
+})

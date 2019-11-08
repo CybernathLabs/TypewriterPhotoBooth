@@ -6,7 +6,11 @@ const serialport = require('serialport')
 const Readline = require('@serialport/parser-readline')
 const createTable = require('data-table')
 const stringBuf = require('./stringbuffer')
-require('./jscii')
+const {ipcRenderer} = require('electron');
+
+// require('./jscii')
+
+const asciiConv = require('./asciiConversion');
 
 const fs = require('fs');
 const path = require('path')
@@ -25,9 +29,10 @@ let port;
 // Holds string and releases one char at a time.
 let stringBuffer = new stringBuf();
 
-console.log("Homedir:",homeDir)
+// Holds our ASCII converter instance.
+let asciiConversion = new asciiConv();
 
-var webcamJscii;
+console.log("Homedir:",homeDir)
 
 serialport.list((err, ports) => {
   cDiv = document.getElementById("cxnDisp")
@@ -53,32 +58,21 @@ navigator.mediaDevices.enumerateDevices().then((md)=>{
 window.addEventListener('keydown', function(evt) {
         if (evt.keyCode == 32) {
             evt.preventDefault();
-            previewImg();
             getPic();
         }
         if(evt.keyCode == 13){
             win = new BrowserWindow({width: 400, height: 300,fullscreen:false});
-             win.loadURL(url.format({
-    pathname: path.join(__dirname, 'test.html'),
-    protocol: 'file:',
-    slashes: true
-  }))
+            win.loadURL(url.format({
+            pathname: path.join(__dirname, 'test.html'),
+            protocol: 'file:',
+            slashes: true
+        }))
+        }
+        if(evt.keyCode == 74 && evt.altKey && evt.metaKey){
+            ipcRenderer.sendSync('debug', true)
         }
     });
-/*document.getElementById("booper").addEventListener("click",function(e){
-    //e.currentTarget.styles.display = 'none;'
-	if(!port || !port.isOpen){
-		console.log("Opening Port");
-		//openSerialPort("/dev/cu.usbmodem1421");
-        openSerialPort("/dev/cu.usbmodem1411");
-        //openSerialPort("/dev/cu.usbserial-00002114");
-        
-	}else{
-	//	doBoop();
-	   console.info("BOOPED");
-	   }
-   })
-*/
+
 function openSerialPort(portname){
     console.log("Opening: ",portname)
     // Inits speed of 115200 and     
@@ -132,30 +126,37 @@ function onData(chunk){
 
 function initVideo(e){
     console.log("Init Video",e.data)
-   // navigator.mediaDevices.enumerateDevices().then((md)=>{console.log(md)})
     
-    webcamJscii = new Jscii({
-        cameraId: e.data,
-        el: document.getElementById('jscii-element-webrtc'),
-        width:110, // landscape...  80=portrait
-        webrtc: true
-    });
     jQuery("#config").hide();
-    videoContainer = document.getElementById("jscii-element-webrtc")
+    videoContainer = document.getElementById("videoElement")
     $(videoContainer).show();
-    // if (videoContainer.requestFullscreen) videoContainer.requestFullscreen();
-    //   else if (videoContainer.mozRequestFullScreen) videoContainer.mozRequestFullScreen();
-    //   else if (videoContainer.webkitRequestFullScreen) videoContainer.webkitRequestFullScreen();
-    //   else if (videoContainer.msRequestFullscreen) videoContainer.msRequestFullscreen();
+
+    navigator.mediaDevices.getUserMedia({video:{exact:'e.data'}})
+        .then((s)=>{videoContainer.srcObject = s})
     
 }
 
 function getPic(){
+    var vid = document.getElementById("videoElement");
+    var cvs = document.createElement("canvas");
+    cvs.height = 480;
+    cvs.width = 640;
+    
+    var context = cvs.getContext('2d');
+//    context.fillStyle = "#AAA";
+//    context.fillRect(0,0,640,480);
+    context.drawImage(vid,0,0,cvs.width,cvs.height);
+    formatPic(cvs)
+    previewImg(cvs);
+}
+function formatPic(cvs){
     if(stringBuffer.getLength() > 0){
         console.warn("Serial Buffer is not clear");
         return;
     }
-    var str = webcamJscii.getAsciiString();
+    //var str = webcamJscii.getAsciiString();
+    asciiConversion.debugImg = document.getElementById("debugImg");
+    var str = asciiConversion.getAsciiString(cvs,110);
     str = str.replace(/&nbsp;/g,' ');
     str = str.replace(/\~/g,'-');
     console.log(str);
@@ -166,17 +167,9 @@ function getPic(){
     }
 }
 
-function previewImg(){
-    var vid = document.getElementById("jscii-element-webrtc");
+function previewImg(cvs){
     var img = document.getElementById("previewImg");
-    var cvs = document.createElement("canvas");
-    cvs.height = 480;
-    cvs.width = 640;
-    
-    var context = cvs.getContext('2d');
-//    context.fillStyle = "#AAA";
-//    context.fillRect(0,0,640,480);
-    context.drawImage(vid,0,0,cvs.width,cvs.height);
+
     var data = cvs.toDataURL('image/png');
     img.setAttribute('src',data);
     //console.log(data);
