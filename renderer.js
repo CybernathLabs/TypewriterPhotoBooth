@@ -127,6 +127,10 @@ function sendChar(){
     var c = stringBuffer.pull();
     console.log("Sending:",c);
     port.write(Buffer.from(c));
+
+    // Update progress display.
+    let prog = document.getElementById('progressDisp')
+    $(prog).text(stringBuffer.getLength() + " Characters Remain.")
 }
 
 //Once confirmation is received via serial, we check for more pending data.
