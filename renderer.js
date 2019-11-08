@@ -1,14 +1,11 @@
-// This file is required by the index.html file and will
-// be executed in the renderer process for that window.
-// All of the Node.js APIs are available in this process.
+// Monolithic JS file containing 90% of my logic.
+// If my students submitted something like this, I'd cringe.
 
 const serialport = require('serialport')
 const Readline = require('@serialport/parser-readline')
-const createTable = require('data-table')
+//const createTable = require('data-table')
 const stringBuf = require('./stringbuffer')
 const {ipcRenderer} = require('electron');
-
-// require('./jscii')
 
 const asciiConv = require('./asciiConversion');
 
@@ -43,6 +40,8 @@ serialport.list((err, ports) => {
     }
 })
 
+// Queries attached cameras, microphones, and speakers.
+// Displays buttons for camera choice.
 navigator.mediaDevices.enumerateDevices().then((md)=>{
     console.log(md)
     for(var i = 0; i < md.length; i++){
@@ -56,31 +55,43 @@ navigator.mediaDevices.enumerateDevices().then((md)=>{
 
 
 window.addEventListener('keydown', function(evt) {
-        if (evt.keyCode == 32) {
+
+        // Spacebar or B key (Remote) triggers photo to be taken.
+        if (evt.keyCode == 32 || evt.keyCode == 66) {
             evt.preventDefault();
             getPic();
         }
+
+        // Enter Key Opened a second window intended as a Preview Display
+        // For a second monitor.  Not yet implemented.
         if(evt.keyCode == 13){
-            win = new BrowserWindow({width: 400, height: 300,fullscreen:false});
-            win.loadURL(url.format({
-            pathname: path.join(__dirname, 'test.html'),
-            protocol: 'file:',
-            slashes: true
-        }))
+        //     win = new BrowserWindow({width: 400, height: 300,fullscreen:false});
+        //     win.loadURL(url.format({
+        //     pathname: path.join(__dirname, 'test.html'),
+        //     protocol: 'file:',
+        //     slashes: true
+        // }))
         }
-        if(evt.keyCode == 74 && evt.altKey && evt.metaKey){
-            ipcRenderer.sendSync('debug', true)
-        }
+        
+        // Attempted to have an "open debugger" hotkey.
+        // Got as far as locking up and crashing the program.  Gave up for now.
+        // if(evt.keyCode == 74 && evt.altKey && evt.metaKey){
+        //     ipcRenderer.sendSync('debug', true)
+        // }
     });
 
+// Opens the specified port, and pipes the output to a parser that waits for a
+// Newline before throwing events.
 function openSerialPort(portname){
     console.log("Opening: ",portname)
     // Inits speed of 115200 and     
     // Queues incoming data until a new line is received.
+    // TODO: Can I remove lineParser from the options here?
     var opts = {  
         parser: lineParser,
         baudRate:115200
     };
+
     port = new serialport(portname,opts);
 	port.pipe(lineParser);
     
@@ -90,16 +101,19 @@ function openSerialPort(portname){
     lineParser.on('data',onData);
 }
 
+// Something went wrong with the selected port.
+// Re-enables buttons to allow for a second try.
 function onPortError(err){
     console.error(err);
     $("button","#cxnDisp").removeAttr("disabled");
 }
 
+// Something went right with the selected port.
+// TODO: Consider a handshake with the typewriter to verify it's the desired device.
 function onPortOpen(n){
     console.log("Port Opened",n)
     $("button","#cxnDisp").attr("disabled","disabled");
-    $("#cxnStatus").text("Connected to " + n)
-    
+    $("#cxnStatus").text("Connected to " + n);
 }
 
 // Vomits a bunch of text into the buffer and kicks off sending.
@@ -115,7 +129,7 @@ function sendChar(){
     port.write(Buffer.from(c));
 }
 
-//Once confirmation is received, we check for more pending data.
+//Once confirmation is received via serial, we check for more pending data.
 function onData(chunk){
 	console.info("I has Data:",chunk.toString(),stringBuffer.getLength());
     if(chunk.toString().substr(0,2) == "ok" && stringBuffer.getLength() > 0){
@@ -124,6 +138,8 @@ function onData(chunk){
     }
 }
 
+// Receives the user selection regarding video, and initializes the chosen video.
+// (Hopefully).
 function initVideo(e){
     console.log("Init Video",e.data)
     
@@ -136,6 +152,7 @@ function initVideo(e){
     
 }
 
+// Kicks off the photo taking process by creating a canvas with the snapshot.
 function getPic(){
     var vid = document.getElementById("videoElement");
     var cvs = document.createElement("canvas");
@@ -146,16 +163,24 @@ function getPic(){
 //    context.fillStyle = "#AAA";
 //    context.fillRect(0,0,640,480);
     context.drawImage(vid,0,0,cvs.width,cvs.height);
+
+    // Passes snapshot for conversion to ASCII & output.
     formatPic(cvs)
+
+    // Passes snapshot for preview and writing to file.
     previewImg(cvs);
 }
+
+// Convert and output photo as ASCII art.
 function formatPic(cvs){
+
+    // If we're still outputting, abort.
     if(stringBuffer.getLength() > 0){
         console.warn("Serial Buffer is not clear");
         return;
     }
-    //var str = webcamJscii.getAsciiString();
-    asciiConversion.debugImg = document.getElementById("debugImg");
+
+    // Implemented new helper.
     var str = asciiConversion.getAsciiString(cvs,110);
     str = str.replace(/&nbsp;/g,' ');
     str = str.replace(/\~/g,'-');
@@ -168,23 +193,28 @@ function formatPic(cvs){
 }
 
 function previewImg(cvs){
-    var img = document.getElementById("previewImg");
-
+    
+    //Converts canvas to Base64 image data url
     var data = cvs.toDataURL('image/png');
+    
+    // Throw update into image preview.
+    var img = document.getElementById("previewImg");
     img.setAttribute('src',data);
-    //console.log(data);
     
-    // Spit Out Img
-    
+    // File Save Prep.
     var imageBuffer = processBase64Image(data);
+
+    // Generate File Name & path.
     var imgName = 'MFO18-' + Date.now() + '.png';
-    var savePath = path.join(homeDir,"MFO2018");
+    var savePath = path.join(homeDir,"MFO2019");
     
     console.log("File Path",savePath);
-    console.log("imageBuffer",imageBuffer)
+    // console.log("imageBuffer",imageBuffer)
     
+    // Creates save directory if it doesn't exist yet.
     if(!fs.existsSync(savePath)) fs.mkdirSync(savePath)
     
+    // Spit out the file to the file system.
     fs.writeFile(path.join(savePath,imgName), imageBuffer.data, (err) => {
       if (err) throw err;
       console.log('The file has been saved!');
@@ -192,6 +222,8 @@ function previewImg(cvs){
     });
 }
 
+
+// Converts Base64 Image Data to an array containing buffer and image type for file creation.
 function processBase64Image(dataString) {
     var matches = dataString.match(/^data:([A-Za-z-+\/]+);base64,(.+)$/),
         response = {};
@@ -201,6 +233,8 @@ function processBase64Image(dataString) {
     }
 
     response.type = matches[1];
+
+    // TODO: Evidently, Buffer instantiation makes node angry now. Should replace with something else.
     response.data = new Buffer(matches[2], 'base64');
 
     return response;
