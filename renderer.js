@@ -132,23 +132,27 @@ function sendChar(){
 //Once confirmation is received via serial, we check for more pending data.
 function onData(chunk){
 	console.info("I has Data:",chunk.toString(),stringBuffer.getLength());
-    if(chunk.toString().substr(0,2) == "ok" && stringBuffer.getLength() > 0){
+    if(chunk.toString().substr(0,2) == "ok"){
+        if(stringBuffer.getLength() > 0){
         // Ready to send more data.
         sendChar();
+        }else{
+            readyForPhoto();
+        }
     }
 }
 
 // Receives the user selection regarding video, and initializes the chosen video.
 // (Hopefully).
 function initVideo(e){
+    let videoElement = document.getElementById("videoElement");
     console.log("Init Video",e.data)
     
     jQuery("#config").hide();
-    videoContainer = document.getElementById("videoElement")
-    $(videoContainer).show();
+    readyForPhoto();
 
     navigator.mediaDevices.getUserMedia({video:{exact:'e.data'}})
-        .then((s)=>{videoContainer.srcObject = s})
+        .then((s)=>{videoElement.srcObject = s})
     
 }
 
@@ -169,6 +173,8 @@ function getPic(){
 
     // Passes snapshot for preview and writing to file.
     previewImg(cvs);
+
+    printingPhoto();
 }
 
 // Convert and output photo as ASCII art.
@@ -189,6 +195,8 @@ function formatPic(cvs){
 //        stringBuffer.push(str + "\rMaker Faire Orlando 2017\rCybernath Labs\r\r\r\r\r\r\r");
         stringBuffer.push(str + "\rPicture by 'PhotoTYPE'\rCybernath Labs & MakerFX Makerspace\r\r\r\r\r\r\r");
         sendChar();
+    }else{
+        setTimeout(()=>{ readyForPhoto() },1500)
     }
 }
 
@@ -220,6 +228,22 @@ function previewImg(cvs){
       console.log('The file has been saved!');
         
     });
+}
+
+// Shows video for live preview.
+function readyForPhoto(){
+    let videoContainer = document.getElementById("vidContainer")
+    $(videoContainer).show("fast");
+    let previewContainer = document.getElementById("previewOverlay")
+    $(previewContainer).hide("fast");
+}
+
+// Displays currently printing photo, and progress meter.
+function printingPhoto(){
+    let videoContainer = document.getElementById("vidContainer")
+    // $(videoContainer).hide("fast");
+    let previewContainer = document.getElementById("previewOverlay")
+    $(previewContainer).show("fast");
 }
 
 
