@@ -71,6 +71,7 @@ window.addEventListener('keydown', function(evt) {
         //     protocol: 'file:',
         //     slashes: true
         // }))
+            doBoop();
         }
         
         // Attempted to have an "open debugger" hotkey.
@@ -125,7 +126,7 @@ function doBoop(){
 //Pulls next character from the buffer and sends.
 function sendChar(){
     var c = stringBuffer.pull();
-    console.log("Sending:",c);
+    //console.log("Sending:",c);
     port.write(Buffer.from(c));
 
     // Update progress display.
@@ -135,7 +136,7 @@ function sendChar(){
 
 //Once confirmation is received via serial, we check for more pending data.
 function onData(chunk){
-	console.info("I has Data:",chunk.toString(),stringBuffer.getLength());
+	//console.info("I has Data:",chunk.toString(),stringBuffer.getLength());
     if(chunk.toString().substr(0,2) == "ok"){
         if(stringBuffer.getLength() > 0){
         // Ready to send more data.

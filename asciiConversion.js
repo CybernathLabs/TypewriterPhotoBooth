@@ -6,12 +6,15 @@ class AsciiConversion {
     // TODO: Allow character selection via constructor.
     
     // Wider Character Set for more shades of grey.
-    chars = ['$','@','B','%','&','W','M','#','*','Z','O','0','Q','Y','X','z',
-				'u','x','r','/','(',')','1',
-                '?','-','_','+','~','i','!','l',';',':',',','"','`','.',' ' ];
+    // chars = ['$','@','B','%','&','W','M','#','*','Z','O','0','Q','Y','X','z',
+	// 			'u','x','r','/','(',')','1',
+    //             '?','-','_','+','~','i','!','l',';',':',',','"','`','.',' ' ];
              
     // Original character set for more contrast.
-    // var chars = ['@','#','$','=','*','!',';',':','~','-',',','.','&nbsp;', '&nbsp;'];
+    // chars = ['@','#','$','=','*','!',';',':','~','-',',','.','&nbsp;', '&nbsp;'];
+
+    // Horrible Hack for a little more contrast.
+    chars = ['@','@','@','#','$','=','*','!',';',':','~','-',',','.','&nbsp;', '&nbsp;'];
     
     // Grabs char at selected index, based on the 0.0 - 1.0 range of contrast.
 	getChar(val) { 
